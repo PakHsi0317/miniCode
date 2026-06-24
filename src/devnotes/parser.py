@@ -30,11 +30,13 @@ def parse(path: Path, max_keywords: int | None = None) -> dict:
         return {"line_count": 0, "keywords": []}
 
     if not text:
+        logger.debug("parsed %s: empty file", path)
         return {"line_count": 0, "keywords": []}
 
     line_count = text.count("\n") + (0 if text.endswith("\n") else 1)
 
     words = (w.lower() for w in WORD_RE.findall(text))
+    # words = (w for w in WORD_RE.findall(text))
     counter = Counter(w for w in words if w not in STOPWORDS)
     keywords = counter.most_common(cap)
 
