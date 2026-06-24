@@ -1,6 +1,6 @@
 # devnotes
 
-[![CI](https://github.com/yourname/devnotes/actions/workflows/ci.yml/badge.svg)](https://github.com/yourname/devnotes/actions/workflows/ci.yml)
+[![CI](https://github.com/PakHsi0317/devnotes/actions/workflows/ci.yml/badge.svg)](https://github.com/PakHsi0317/devnotes/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -19,7 +19,7 @@ A local developer notes indexer with **inverted-index keyword search** over `.py
 ## Install
 
 ```bash
-git clone https://github.com/yourname/devnotes.git
+git clone https://github.com/PakHsi0317/devnotes.git
 cd devnotes
 python -m venv .venv
 .venv\Scripts\Activate.ps1     # Windows PowerShell
