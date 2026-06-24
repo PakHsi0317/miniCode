@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 app = typer.Typer(help="Local developer notes indexer.", no_args_is_help=True)
 
 
-def _bootstrap(config_path: Optional[Path], verbose: bool) -> dict:
+def _bootstrap(config_path: Path | None, verbose: bool) -> dict:
     """Load config and set up logging. Returns the effective config dict."""
     config = load_config(config_path)
     level = "DEBUG" if verbose else config["logging"]["level"]
@@ -40,7 +39,7 @@ def index(
         resolve_path=True,
         help="Directory to scan.",
     ),
-    config_path: Optional[Path] = typer.Option(
+    config_path: Path | None = typer.Option(
         None, "--config", "-c", help="Path to config.yaml (defaults to ./config.yaml)."
     ),
     verbose: bool = typer.Option(
@@ -75,7 +74,7 @@ def index(
 def search(
     query: str,
     limit: int = typer.Option(10, "--limit", "-n", help="Max results."),
-    config_path: Optional[Path] = typer.Option(
+    config_path: Path | None = typer.Option(
         None, "--config", "-c", help="Path to config.yaml."
     ),
     verbose: bool = typer.Option(
