@@ -1,5 +1,8 @@
+import logging
 import sqlite3
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_DB_PATH = Path(".devnotes/index.db")
 
@@ -26,13 +29,15 @@ CREATE INDEX IF NOT EXISTS idx_keywords_file_id  ON keywords(file_id);
 """
 
 
-def connect(db_path: Path = DEFAULT_DB_PATH) -> sqlite3.Connection:
+def connect(db_path: Path | None = None) -> sqlite3.Connection:
     """Open (or create) the SQLite database and return a connection."""
+    db_path = db_path if db_path is not None else DEFAULT_DB_PATH
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     conn.executescript(SCHEMA)
+    logger.debug("connected to %s", db_path)
     return conn
 
 

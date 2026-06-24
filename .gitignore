@@ -12,3 +12,4 @@ htmlcov/
 build/
 dist/
 .env
+config.yaml

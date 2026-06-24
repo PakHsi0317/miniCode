@@ -1,7 +1,11 @@
+import logging
 from pathlib import Path
+from typing import Optional
 
 import typer
 
+from devnotes.config import load_config
+from devnotes.logging_setup import setup_logging
 from devnotes.parser import parse
 from devnotes.scanner import scan
 from devnotes.storage import (
@@ -12,7 +16,18 @@ from devnotes.storage import (
     upsert_file,
 )
 
+logger = logging.getLogger(__name__)
+
 app = typer.Typer(help="Local developer notes indexer.", no_args_is_help=True)
+
+
+def _bootstrap(config_path: Optional[Path], verbose: bool) -> dict:
+    """Load config and set up logging. Returns the effective config dict."""
+    config = load_config(config_path)
+    level = "DEBUG" if verbose else config["logging"]["level"]
+    setup_logging(level)
+    logger.debug("config loaded: %s", config)
+    return config
 
 
 @app.command()
@@ -25,13 +40,26 @@ def index(
         resolve_path=True,
         help="Directory to scan.",
     ),
+    config_path: Optional[Path] = typer.Option(
+        None, "--config", "-c", help="Path to config.yaml (defaults to ./config.yaml)."
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Show debug logs."
+    ),
 ) -> None:
     """Scan a directory, extract keywords, and persist to SQLite."""
-    files = scan(path)
-    conn = connect()
+    config = _bootstrap(config_path, verbose)
+
+    extensions = set(config["scan"]["extensions"])
+    ignore_dirs = set(config["scan"]["ignore_dirs"])
+    max_keywords = config["keywords"]["max_per_file"]
+    db_path = Path(config["storage"]["db_path"])
+
+    files = scan(path, extensions=extensions, ignore_dirs=ignore_dirs)
+    conn = connect(db_path)
     try:
         for f in files:
-            info = parse(f)
+            info = parse(f, max_keywords=max_keywords)
             upsert_file(conn, f, info["line_count"], info["keywords"])
         conn.commit()
         total_files = count_files(conn)
@@ -47,9 +75,18 @@ def index(
 def search(
     query: str,
     limit: int = typer.Option(10, "--limit", "-n", help="Max results."),
+    config_path: Optional[Path] = typer.Option(
+        None, "--config", "-c", help="Path to config.yaml."
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Show debug logs."
+    ),
 ) -> None:
     """Search indexed files by keyword content."""
-    conn = connect()
+    config = _bootstrap(config_path, verbose)
+    db_path = Path(config["storage"]["db_path"])
+
+    conn = connect(db_path)
     try:
         results = search_files(conn, query)
     finally:

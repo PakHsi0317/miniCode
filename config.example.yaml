@@ -1,0 +1,26 @@
+# devnotes configuration example
+# Copy to config.yaml and edit as needed.
+# Anything you do not override here falls back to built-in defaults.
+
+scan:
+  extensions: [".py", ".md", ".txt"]
+  ignore_dirs:
+    - ".git"
+    - "__pycache__"
+    - ".venv"
+    - "venv"
+    - "node_modules"
+    - ".pytest_cache"
+    - ".devnotes"
+
+keywords:
+  # Max keywords stored per file (raise for better recall on large files).
+  max_per_file: 200
+
+storage:
+  # Relative or absolute path.
+  db_path: ".devnotes/index.db"
+
+logging:
+  # One of: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
